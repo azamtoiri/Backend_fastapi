@@ -18,44 +18,37 @@ def docs():
     return RedirectResponse("/docs")
 
 
-# @router.get("/imports/", response_model=List[models.Folder])
-# def get_imports(item: schemas.ItemImportRequest, db: SessionLocal = Depends(get_db)):
-#     return db
-
-# @router.post("/imports/", response_model=schemas.Folder)
-# def create_itme(item: schemas.ItemImportRequest, db: Session = Depends(get_db)):
-#     db_folder = crud.create_item(db=db, imports=item)
-#     if db_folder:
-#         raise HTTPException(status_code=400)
-#     return crud.create_item(db=db, imports=item)
+@router.get("/imports", response_model=List[schemas.ItemBase])
+def get_imports(db: Session = Depends(get_db)):
+    data = db.query(models.Item).all()
+    return data
 
 
-@router.get("/imports/", response_model=schemas.ItemImportRequest)
-def get_imports(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    item = crud.get_items(db, skip=skip, limit=limit)
-    return item
+@router.post("/imports")
+def post_imports(request: schemas.ItemBase, db: Session = Depends(get_db)):
+    data = models.Item(id=request.id, url=request.url, parent_id=request.parent_id, type=request.type,
+                       size=request.size, date=request.date)
+    db.add(data)
+    db.commit()
+    db.refresh(data)
+    return data
 
 
-@router.post("/imports/", response_model=schemas.ItemImportRequest)
-def post_imports():
-    pass
-
-
-@router.get("/nodes/{node_id}", response_model=schemas.ItemImport)
+@router.get("/nodes/{node_id}")
 def get_node_by_id():
     pass
 
 
-@router.delete("/delete/{node_id}", response_model=schemas.ItemImportRequest)
+@router.delete("/delete/{node_id}")
 def delete_item():
     pass
 
 
-@router.get("/updates", response_model=schemas.ItemHistoryUnit)
+@router.get("/updates")
 def get_updates():
     pass
 
 
-@router.get("/node/{id}/history", response_model=schemas.ItemHistoryUnit)
+@router.get("/node/{id}/history")
 def get_node_history():
     pass
