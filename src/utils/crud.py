@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 
-from src import schemas
-from src.db.models import Item, Folder
+from src.db.models import Folder
 
 
 def get_items(db: Session, skip: int = 0, limit: int = 100):

@@ -1,14 +1,11 @@
 import uvicorn
 
 from fastapi import FastAPI
-from src.endpoints import imports
-from fastapi.staticfiles import StaticFiles
-
-from src.utils.database import engine, Base
+from app import endpoints
 
 app = FastAPI()
 
-app.include_router(imports.router)
+app.include_router(endpoints.router)
 
 if __name__ == '__main__':
     uvicorn.run(app, host="", port=80)
