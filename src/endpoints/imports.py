@@ -3,7 +3,7 @@ from typing import List
 from fastapi.requests import Request
 from fastapi.responses import Response, RedirectResponse
 from sqlalchemy.orm import Session
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, status
 
 from src.utils import crud
 from src.db import models
@@ -42,8 +42,11 @@ def post_imports():
 
 
 @router.get("/nodes/{node_id}", response_model=schemas.ItemImport)
-def get_node_by_id():
-    pass
+def get_node_by_id(node_id, db: Session = Depends(get_db)):
+    get_node = db.query(models.Item).filter(models.Item.id == node_id).first()
+    if not get_node:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"node with the id {id} is not available")
+    return get_node
 
 
 @router.delete("/delete/{node_id}", response_model=schemas.ItemImportRequest)
