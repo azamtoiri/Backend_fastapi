@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Response, status, HTTPException
+from fastapi import APIRouter, Response, status, HTTPException, Depends
 from app.schemas import Post
-from random import randrange
+
+from app.db.database import conn, cursor
+
 
 router = APIRouter()
 
@@ -38,15 +40,19 @@ def root():
 
 @router.get("/posts")
 def get_posts():
-    return {"data": my_posts}
+    cursor.execute("""SELECT * FROM posts""")
+    post = cursor.fetchall()
+    return {"data": post}
 
 
 @router.post("/createposts", status_code=status.HTTP_201_CREATED)
-def create_posts(body: Post, ):
-    post_dict = body.dict()
-    post_dict['id'] = randrange(0, 10001)
-    my_posts.append(post_dict)
-    return {"data": post_dict}
+def create_posts(post: Post):
+    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING *""",
+                   (post.title, post.content, post.published))
+    new_post = cursor.fetchone()
+    conn.commit()
+
+    return {"data": new_post}
 
 
 @router.get("/posts/latest")
@@ -56,35 +62,36 @@ def get_latest_post():
 
 
 @router.get("/posts/{id}")
-def get_post_id(id: int, response: Response):
-    post = find_post(id)
-    if not post:
+def get_post_id(id: int):
+    cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str(id)))
+    po_st = cursor.fetchone()
+    # po_st = find_post(id)
+    if not po_st:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"post with {id} not fount")
-        # response.status_code = status.HTTP_404_NOT_FOUND
-        # return {'message': f"post with {id} not fount"}
-    return {"post_detail": post}
+                            detail=f"po_st with {id} not fount")
+    return {"post_detail": po_st}
 
 
 @router.put("/posts/{id}")
 def update_post(id: int, post: Post):
-    index = find_index(id)
-    if not index:
+    cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *""",
+                   (post.title, post.content, post.published, id))
+    updated_post = cursor.fetchone()
+    conn.commit()
+    if not updated_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with {id} does not exist")
 
-    post_dict = post.dict()
-    post_dict['id'] = id
-    my_posts[index] = post_dict
-    return {"data": post_dict}
+    return {"data": updated_post}
 
 
 @router.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):  # delete post
-    index = find_index(id)
-    if not index:
+    cursor.execute("""DELETE FROM POSTS WHERE id = %s RETURNING *""", (str(id),))
+    deleted_post = cursor.fetchone()
+    conn.commit()
+    if not deleted_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with {id} does not exist")
-    my_posts.pop(index)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
     # {'message': "post was successfully deleted"}
