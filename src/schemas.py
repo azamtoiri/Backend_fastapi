@@ -1,17 +1,16 @@
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 from enum import Enum
 from pydantic import BaseModel
 
 
 class ItemType(str, Enum):
     FOLDER = "FOLDER"
-    FILES = "FILES"
+    FILES = "FILE"
 
 
 class ItemBase(BaseModel):
     id: str
     url: Optional[str] = None
-    date: str
     parent_id: Optional[str] = None
     type: Optional[ItemType]
     size: Optional[int] = None
@@ -22,5 +21,5 @@ class ItemBase(BaseModel):
 
 
 class ItemImportRequest(BaseModel):
-    items: list[ItemBase] = None
+    items: List[ItemBase] = None
     updateDate: Optional[str] = None
