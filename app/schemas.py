@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
+# TODO Response Model like ID->title->content->published->created_at
 
 
 class PostBase(BaseModel):
