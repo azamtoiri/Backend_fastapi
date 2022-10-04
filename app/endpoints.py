@@ -1,36 +1,14 @@
 from fastapi import APIRouter, Response, status, HTTPException, Depends
+from sqlalchemy.orm import Session
+
+from app.db.database import engine, get_db
+from app import models
 from app.schemas import Post
+from app import schemas
 
-from app.db.database import conn, cursor
-
+models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
-
-my_posts = [
-    {
-        "title": "title of post 1",
-        "content": "content of post 1",
-        "id": 1
-    },
-    {
-        "title": "favorite foods",
-        "content": "I like pizza",
-        "id": 2
-    }
-]
-
-
-def find_post(id):  # find post
-    for p in my_posts:
-        if p["id"] == id:
-            return p
-
-
-def find_index(id):
-    for i, p in enumerate(my_posts):
-        if p["id"] == id:
-            return i
-    return None
 
 
 @router.get("/")
@@ -39,59 +17,54 @@ def root():
 
 
 @router.get("/posts")
-def get_posts():
-    cursor.execute("""SELECT * FROM posts""")
-    post = cursor.fetchall()
-    return {"data": post}
+def get_posts(db: Session = Depends(get_db)):
+    posts = db.query(models.Post).all()
+    return {"data": posts}
 
 
 @router.post("/createposts", status_code=status.HTTP_201_CREATED)
-def create_posts(post: Post):
-    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING *""",
-                   (post.title, post.content, post.published))
-    new_post = cursor.fetchone()
-    conn.commit()
-
+def create_posts(post: schemas.Post, db: Session = Depends(get_db)):
+    new_post = models.Post(**post.dict())
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
     return {"data": new_post}
 
 
 @router.get("/posts/latest")
-def get_latest_post():
-    last = my_posts[len(my_posts) - 1]
-    return {"detail": last}
+def get_latest_post(db: Session = Depends(get_db)):
+    last_post = db.query(models.Post).order_by(models.Post.created_at.desc()).first()
+    return {"detail": last_post}
 
 
 @router.get("/posts/{id}")
-def get_post_id(id: int):
-    cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str(id)))
-    po_st = cursor.fetchone()
-    # po_st = find_post(id)
+def get_post_id(id: int, db: Session = Depends(get_db)):
+    po_st = db.query(models.Post).filter(models.Post.id == id).first()
     if not po_st:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"po_st with {id} not fount")
+                            detail=f"post with {id} not fount")
     return {"post_detail": po_st}
 
 
 @router.put("/posts/{id}")
-def update_post(id: int, post: Post):
-    cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *""",
-                   (post.title, post.content, post.published, id))
-    updated_post = cursor.fetchone()
-    conn.commit()
-    if not updated_post:
+def update_post(id: int, post: Post, db: Session = Depends(get_db)):
+    post_query = db.query(models.Post).filter(models.Post.id == id)
+    post_tmp = post_query.first()
+    if post_tmp is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with {id} does not exist")
+    post_query.update(post.dict(), synchronize_session=False)
+    db.commit()
 
-    return {"data": updated_post}
+    return {"data": post_query.first()}
 
 
 @router.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int):  # delete post
-    cursor.execute("""DELETE FROM POSTS WHERE id = %s RETURNING *""", (str(id),))
-    deleted_post = cursor.fetchone()
-    conn.commit()
-    if not deleted_post:
+def delete_post(id: int, db: Session = Depends(get_db)):  # delete post
+    post = db.query(models.Post).filter(models.Post.id == id)
+    if post.first() is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with {id} does not exist")
+    post.delete()
+    db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-    # {'message': "post was successfully deleted"}
