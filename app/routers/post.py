@@ -6,15 +6,11 @@ from sqlalchemy.orm import Session
 from app.db.database import engine, get_db
 from app import models
 from app import schemas
+from app import utils
 
 models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
-
-
-@router.get("/")
-def root():
-    return {"hello": "You are on main page"}
 
 
 @router.get("/posts", response_model=List[schemas.Post])
@@ -69,12 +65,3 @@ def delete_post(id: int, db: Session = Depends(get_db)):  # delete post
     post.delete()
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@router.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    new_user = models.User(**user.dict())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
