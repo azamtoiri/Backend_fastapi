@@ -10,7 +10,8 @@ from app import schemas
 models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter(
-    prefix="/posts"
+    prefix="/posts",
+    tags=['Posts']
 )
 
 

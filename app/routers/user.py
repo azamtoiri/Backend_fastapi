@@ -11,7 +11,8 @@ from app import utils
 models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter(
-    prefix="/users"
+    prefix="/users",
+    tags=['Users']
 )
 
 
