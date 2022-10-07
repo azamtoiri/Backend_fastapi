@@ -13,11 +13,6 @@ models.Base.metadata.create_all(bind=engine)
 router = APIRouter()
 
 
-@router.get("/")
-def root():
-    return {"hello": "You are on main page"}
-
-
 @router.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # hash password - user.password
