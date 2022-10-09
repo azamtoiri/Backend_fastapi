@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app import schemas
-from app import models, utils
+from app import models, utils, oauth2
 
 router = APIRouter(tags=['Authentication'])
 
@@ -18,6 +18,5 @@ def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
     if not utils.veryfi(user_credentials.password, user.password):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
-    # # create token
-    # # return token
-    return {"token": "example token"}
+    access_toke = oauth2.create_access_token(data={"user_id": user.id})
+    return {"access_token": access_toke, "token_type": "bearer"}
