@@ -22,12 +22,16 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     hashed_password = utils.hash(user.password)
     user.password = hashed_password
 
-    new_user = models.User(**user.dict())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    try:
+        new_user = models.User(**user.dict())
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-    return new_user
+        return new_user
+    except Exception as ex:
+        print(ex)
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This email already have been used")
 
 
 @router.get("/", response_model=List[schemas.UserOut])
