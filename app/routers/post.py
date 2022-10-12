@@ -17,7 +17,7 @@ router = APIRouter(
 
 @router.get("/", response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    posts = db.query(models.Post).filter(models.Post.owner_id == current_user.id).all()
+    posts = db.query(models.Post).all()
     return posts
 
 
@@ -33,18 +33,16 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db),
 
 @router.get("/latest", response_model=schemas.Post)
 def get_latest_post(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    last_post = db.query(models.Post).filter(models.Post.owner_id == current_user.id).order_by(
-        models.Post.created_at.desc()).first()
+    last_post = db.query(models.Post).order_by(models.Post.created_at.desc()).first()
     return last_post
 
 
 @router.get("/{id}", response_model=schemas.Post)
 def get_post_id(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    po_st = db.query(models.Post).filter(models.Post.id == id).filter(models.Post.owner_id == current_user.id).first()
-    if not po_st:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"post with {id} not fount")
-    return po_st
+    post = db.query(models.Post).filter(models.Post.id == id).first()
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with {id} not fount")
+    return post
 
 
 @router.put("/{id}", response_model=schemas.Post)
