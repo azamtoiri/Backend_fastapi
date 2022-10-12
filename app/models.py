@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Boolean
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
 
@@ -9,6 +9,7 @@ class Post(Base):
     __tablename__ = 'post'
 
     id: int = Column(Integer, primary_key=True, nullable=False)
+    owner_id: int = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     title: str = Column(String, nullable=False)
     content: str = Column(String, nullable=False)
     published: bool = Column(Boolean, server_default='TRUE', nullable=False)
