@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 
 from app.db.database import get_db
-from app import models, utils, oauth2, schemas
+from app import models, oauth2, schemas
+from app.utils import jwt_utils
 
 router = APIRouter(tags=['Authentication'])
 
@@ -15,7 +16,7 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
     if not user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials")
 
-    if not utils.veryfi(user_credentials.password, user.password):
+    if not jwt_utils.veryfi(user_credentials.password, user.password):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials")
 
     access_toke = oauth2.create_access_token(data={"current_user": user.id})

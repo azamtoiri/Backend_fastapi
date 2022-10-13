@@ -2,6 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from app.utils.constants import Connection
+
 
 def get_db():
     db = SessionLocal()
@@ -11,7 +13,7 @@ def get_db():
         db.close()
 
 
-DATABASE_URL = 'postgresql://postgres:1234@localhost:5432/fastapi'
+DATABASE_URL = f'postgresql://{Connection.DATABASE_URL}'
 
 engine = create_engine(DATABASE_URL)
 
