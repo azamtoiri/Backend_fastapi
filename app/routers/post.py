@@ -4,10 +4,8 @@ from fastapi import APIRouter, Response, status, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import engine, get_db
-from app import models, oauth2
-from app import schemas, oauth2
+from app import schemas, oauth2, models
 
-models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter(
     prefix="/posts",
