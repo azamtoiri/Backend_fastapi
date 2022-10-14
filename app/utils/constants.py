@@ -19,6 +19,11 @@ class Connection:
     """Config connection to database"""
 
     DATABASE_URL = _str_config("DATABASE_URL")
+    DATABASE_USERNAME = _str_config("DATABASE_USERNAME")
+    DATABASE_PASSWORD = _str_config("DATABASE_PASSWORD")
+    DATABASE_PORT = _str_config("DATABASE_PORT")
+    DATABASE_HOSTNAME = _str_config("DATABASE_HOSTNAME")
+    DATABASE_NAME = _str_config("DATABASE_NAME")
 
 
 class Server:

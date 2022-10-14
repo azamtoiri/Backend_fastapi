@@ -13,10 +13,11 @@ def get_db():
         db.close()
 
 
-# DATABASE_URL = f'postgresql://{Connection.DATABASE_URL}'
-DATABASE_URL = f'{Connection.DATABASE_URL}'
+SQLALCHEMY_DATABASE_URL = f'postgresql://{Connection.DATABASE_USERNAME}' \
+                          f':{Connection.DATABASE_PASSWORD}@{Connection.DATABASE_HOSTNAME}' \
+                          f':{Connection.DATABASE_PORT}/{Connection.DATABASE_NAME}'
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
