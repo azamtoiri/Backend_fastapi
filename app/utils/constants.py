@@ -27,4 +27,3 @@ class Server:
     SECRET_KEY = _str_config("SECRET_KEY")
     ALGORITHM = _str_config("ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES = _int_config("ACCESS_TOKEN_EXPIRE_MINUTES")
-
