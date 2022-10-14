@@ -33,9 +33,11 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db),
     return new_post
 
 
-@router.get("/latest", response_model=schemas.Post)
+@router.get("/latest", response_model=schemas.PostOut)
 def get_latest_post(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    last_post = db.query(models.Post).order_by(models.Post.created_at.desc()).first()
+    last_post = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
+        models.Vote, models.Vote.post_id == models.Post.id, isouter=True
+    ).group_by(models.Post.id).order_by(models.Post.created_at.desc()).first()
     return last_post
 
 
