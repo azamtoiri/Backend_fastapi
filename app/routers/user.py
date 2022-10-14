@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Response, status, HTTPException, Depends
+from fastapi import APIRouter, status, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import engine, get_db
@@ -18,8 +18,8 @@ router = APIRouter(
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # hash password - user.password
-    hashed_password = jwt_utils.hash(user.password)
+    # hash_ password - user.password
+    hashed_password = jwt_utils.hash_(user.password)
     user.password = hashed_password
 
     try:
