@@ -8,7 +8,9 @@ from alembic import context
 from app.models import Base
 from app.utils.constants import Connection
 
-DATABASE_URL = f'postgresql+psycopg2://{Connection.DATABASE_URL}'
+DATABASE_URL = f'postgresql://{Connection.DATABASE_USERNAME}' \
+               f':{Connection.DATABASE_PASSWORD}@{Connection.DATABASE_HOSTNAME}' \
+               f':{Connection.DATABASE_PORT}/{Connection.DATABASE_NAME}'
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,6 +27,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
