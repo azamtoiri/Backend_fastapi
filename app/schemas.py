@@ -4,9 +4,6 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, conint
 
 
-# TODO Response Model like ID->title->content->published->created_at
-
-
 class UserOut(BaseModel):
     id: int
     email: EmailStr
