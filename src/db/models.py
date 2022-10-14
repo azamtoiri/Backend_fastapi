@@ -10,14 +10,8 @@ class Item(Base):
 
     id: str = Column(String, primary_key=True, unique=True, nullable=False)
     url: str = Column(String(255), nullable=True)
-    parent_id: str = Column(String, ForeignKey('folder.id'), nullable=True)
+    parent_id: str = Column(String, nullable=True)
     type: str = Column(String, nullable=False)
     size: int = Column(Integer, default=0)
+    date = Column(String)
 
-
-class Folder(Base):
-    __tablename__ = "folder"
-
-    id: str = Column(String, primary_key=True)
-    item: str = Column(String)
-    updateDate = Column(TIMESTAMP, server_default=func.now(), onupdate=func.current_timestamp(), nullable=False)

@@ -1,0 +1,46 @@
+from typing import Union
+from enum import Enum
+from pydantic import BaseModel
+
+
+class ItemType(str, Enum):
+    FOLDER = "FOLDER"
+    FILES = "FILES"
+
+
+class Item:
+    id: str
+    url: Union[str] = None
+    date: str
+    parent_id: Union[str] = None
+    type: ItemType
+    size: Union[int] = None
+
+    class Config:
+        orm_mode = True
+
+
+class ItemImport(BaseModel):
+    id: str
+    url: Union[str] = None
+    parent_id: Union[str] = None
+    type: ItemType
+    size: Union[int] = None
+
+
+class ItemImportRequest(BaseModel):
+    items: list[Item]
+    updateDate: Union[str] = None
+
+
+class ItemHistoryUnit(BaseModel):
+    pass
+
+
+class ItemHistoryResponse(BaseModel):
+    pass
+
+
+class Error(BaseModel):
+    code: int
+    message: str
