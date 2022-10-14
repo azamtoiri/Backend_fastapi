@@ -13,7 +13,8 @@ def get_db():
         db.close()
 
 
-DATABASE_URL = f'postgresql://{Connection.DATABASE_URL}'
+# DATABASE_URL = f'postgresql://{Connection.DATABASE_URL}'
+DATABASE_URL = f'{Connection.DATABASE_URL}'
 
 engine = create_engine(DATABASE_URL)
 
