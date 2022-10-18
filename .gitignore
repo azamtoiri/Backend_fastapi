@@ -1,5 +1,7 @@
 ### main template
 ### Django ###
+tailwindcss/
+*.json
 *.log
 *.pot
 *.pyc
